@@ -1,0 +1,114 @@
+
+/*
+ *  JavaDoq 1.0 - DOCUment JAVA In Source
+ *  Copyright (C) 2008-2011  J.J.Liu<jianjunliu@126.com> <http://www.javadoq.com>
+ *  
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Affero General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *  
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Affero General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU Affero General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+options {
+  JDK_VERSION = "1.5";
+  JAVA_UNICODE_ESCAPE = true;
+  MULTI = true;
+  NODE_CLASS = "ASTNode";
+  NODE_DEFAULT_VOID = true;
+  NODE_SCOPE_HOOK = true;
+  NODE_USES_PARSER = true;
+  STATIC = false;
+  TOKEN_EXTENDS = "AbstractToken";
+  UNICODE_INPUT = true;
+}
+
+PARSER_BEGIN(JavadocParser)
+
+package com.javadoq.javadoc;
+
+public class JavadocParser {
+
+	void jjtreeOpenNodeScope(Node n) {
+		((ASTNode)n).firstToken = getToken(1);
+	}
+
+	void jjtreeCloseNodeScope(Node n) {
+		((ASTNode)n).lastToken = getToken(0);
+	}
+}
+
+PARSER_END(JavadocParser)
+
+TOKEN [IGNORE_CASE] :
+{
+  < LINK_START: "{@link" ( [" ", "\t"] )+ > : IN_LINK_START
+| < SEE_START: "@see" ( [" ", "\t"] )+ > : IN_SEE_START
+| < ANCHOR_START: "<a" ( [" ", "\t"] )+ "href" ( [" ", "\t"])* "=" ( [" ", "\t"] )* > : IN_ANCHOR_START
+| < SPACE:    ( <WS> )+ >
+| < #WS:      [" ", "\t", "\r", "\n", "\f"] >
+| < COMMENT: ~[] >
+}
+
+<IN_LINK_START> TOKEN:
+{
+  < LINK:  ( ~["{", "}", "(", ")", "<", ">", " ", "\t", "\r", "\n", "\f"] )+ >
+| < LINK_CLOSE: ( "(" (~["(", ")"])* ")" )? ( [" ", "\t"] )* "}" > : DEFAULT
+}
+
+<IN_SEE_START> TOKEN:
+{
+  < SEE:  ( ~["{", "}", "(", ")", "<", ">", " ", "\t", "\r", "\n", "\f"] )+ >
+| < SEE_CLOSE: ( "(" (~["(", ")"])* ")" )? ( [" ", "\t", "\r", "\n", "\f"] )+ > : DEFAULT
+}
+
+<IN_ANCHOR_START> TOKEN:
+{
+  < ANCHOR:  (~[">", " ", "\t", "\r", "\n", "\f"])+ >
+| < ANCHOR_CLOSE: ">" | ( ( [" ", "\t"] )+ ( ~[">"] )* ">" ) > : DEFAULT
+}
+
+ASTCompilationUnit CompilationUnit() #CompilationUnit :
+{}
+{
+  (    Link()
+|   See()
+|   Anchor()
+|   < SPACE >
+|   < COMMENT >
+  )*
+  < EOF >
+  {    return jjtThis;
+  }
+}
+
+void Link() :
+{}
+{
+  < LINK_START >
+  ( < LINK > ) ?
+  < LINK_CLOSE >
+}
+
+void See() :
+{}
+{
+  < SEE_START >
+  ( < SEE > ) ?
+  < SEE_CLOSE >
+}
+
+void Anchor() :
+{}
+{
+  < ANCHOR_START >
+  ( < ANCHOR > ) ?
+  < ANCHOR_CLOSE >
+}

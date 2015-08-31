@@ -1,0 +1,10 @@
+JavaDoq 1.0
+============
+DOCUment Java In Source
+
+JavaDoq [java-docu] is a handy open source tool to convert Java source code into browsable HTML documents 
+with JavaDoc style and Eclipse Look-And-Feel. It requires JDK 1.5 (or above) and is released in open source 
+under GNU Public License version 3 (gpl-v3).
+
+If you find bugs and issues on JavaDoq, please contact the author J.J.Liu at jianjunliu@126.com or check the 
+web site http://www.javadoq.com

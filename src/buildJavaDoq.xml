@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Build" default="All" basedir=".">
+	<taskdef name="javadoq"
+			classname="com.javadoq.JavaDoqTask"
+		    classpath="../bin"
+	/>
+	<target name="All" >
+		<javadoq
+			title="JavaDoq 1.0"
+			source="../src"
+			destination="../docs/src"
+		/>
+	</target>
+</project>
